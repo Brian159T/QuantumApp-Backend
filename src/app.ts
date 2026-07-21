@@ -1,7 +1,7 @@
 import express from 'express';
 import config from './config';
 import clientes from './modulos/Clientes/rutas';
-
+//en app.ts configuramos express y creamos las rutas
 const app = express();
 
 // Configuración
