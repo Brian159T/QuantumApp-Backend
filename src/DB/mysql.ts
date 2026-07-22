@@ -1,7 +1,12 @@
-import mysql, { Connection } from 'mysql';
+import mysql, { Connection, MysqlError } from 'mysql';
 import config from '../config';
 
-const dbconfig = {
+interface Data {
+    id: number;
+    [key: string]: any;
+}
+
+const dbConfig = {
     host: config.mysql.host,
     user: config.mysql.user,
     password: config.mysql.password,
@@ -10,51 +15,181 @@ const dbconfig = {
 
 let conexion: Connection;
 
-function conmysql(): void {
-    conexion = mysql.createConnection(dbconfig);
 
-    conexion.connect((err) => {
+function conmysql(): void {
+
+    conexion = mysql.createConnection(dbConfig);
+
+    conexion.connect((err: MysqlError | null) => {
+
         if (err) {
-            console.log('[db err]', err);
+            console.log('[db error]', err);
             setTimeout(conmysql, 2000);
         } else {
             console.log('DB conectada!!!');
         }
+
     });
 
-    conexion.on('error', (err) => {
-        console.log('[db err]', err);
+
+    conexion.on('error', (err: MysqlError) => {
+
+        console.log('[db error]', err);
 
         if (err.code === 'PROTOCOL_CONNECTION_LOST') {
             conmysql();
         } else {
             throw err;
         }
+
     });
+
 }
+
+
 conmysql();
 
-function todos(tabla: string): unknown {
+
+
+function todos(tabla: string): Promise<any> {
+
     return new Promise((resolve, reject) => {
-        conexion.query(`SELECT * FROM ${tabla}`, (err, data) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(data);
+
+        conexion.query(
+            'SELECT * FROM ??',
+            [tabla],
+            (err: MysqlError | null, data: any[]) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+
             }
-        });
+        );
+
     });
+
 }
 
-function uno(tabla: string, id: number): void {}
 
-function agregar(tabla: string, data: unknown): void {}
 
-function eliminar(tabla: string, id: number): void {}
+function uno(tabla: string, id: number): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+        conexion.query(
+            'SELECT * FROM ?? WHERE id = ?',
+            [tabla, id],
+            (err: MysqlError | null, result: any[]) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+
+            }
+        );
+
+    });
+
+}
+
+
+
+function agregar(tabla: string, data: Data): Promise<any> {
+
+    if (data.id === 0) {
+
+        return insertar(tabla, data);
+
+    } else {
+
+        return actualizar(tabla, data);
+
+    }
+
+}
+
+
+
+function insertar(tabla: string, data: Data): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+        conexion.query(
+            'INSERT INTO ?? SET ?',
+            [tabla, data],
+            (err: MysqlError | null, result: any) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+
+            }
+        );
+
+    });
+
+}
+
+
+
+function actualizar(tabla: string, data: Data): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+        conexion.query(
+            'UPDATE ?? SET ? WHERE id = ?',
+            [tabla, data, data.id],
+            (err: MysqlError | null, result: any) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+
+            }
+        );
+
+    });
+
+}
+
+
+
+function eliminar(tabla: string, data: Data): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+        conexion.query(
+            'DELETE FROM ?? WHERE id = ?',
+            [tabla, data.id],
+            (err: MysqlError | null, result: any) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+
+            }
+        );
+
+    });
+
+}
+
+
 
 export default {
     todos,
     uno,
     agregar,
-    eliminar,
+    eliminar
 };
