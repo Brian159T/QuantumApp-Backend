@@ -1,6 +1,6 @@
 import dbMysql from '../../DB/mysql';
 
-const TABLA = 'roles';
+const TABLA = 'Administrador';
 
 interface Rol {
     id: number;
