@@ -1,13 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import respuesta from '../../red/respuestas';
 import controlador from './index';
+import seguridad from './seguridad'
 
 const router = Router();
 
+
 router.get('/', todos);
 router.get('/:id', uno);
-router.post('/', agregar);
-router.delete('/:id', eliminar);
+router.post('/',seguridad(), agregar);
+router.delete('/:id', seguridad(),eliminar);
 
 async function todos(
     req: Request,
