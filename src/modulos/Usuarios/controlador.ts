@@ -74,15 +74,50 @@ export default function (dbInyectada?: any) {
 
     }
 
+    async function actualizar(
+        id: number,
+        body: Usuario
+    ) {
+
+        const usuario: any = {
+
+            nombre_usuario: body.nombre_usuario,
+
+            correo: body.correo,
+
+            id_rol: body.id_rol,
+
+        };
+
+        if (body.contrasena) {
+
+            usuario.contrasena = await bcrypt.hash(
+                body.contrasena,
+                5
+            );
+
+        }
+
+        return db.actualizar(
+            TABLA,
+            CAMPO_ID,
+            id,
+            usuario
+        );
+
+    }
+
     return {
 
         todos,
 
         uno,
 
-        eliminar,
-
         agregar,
+
+        actualizar,
+
+        eliminar,
 
     };
 

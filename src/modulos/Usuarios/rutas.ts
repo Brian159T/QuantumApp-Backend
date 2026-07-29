@@ -1,29 +1,34 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import respuesta from '../../red/respuestas';
 import controlador from './index';
-import seguridad from './seguridad'
+import seguridad from './seguridad';
 
 const router = Router();
-
 
 router.get('/', todos);
 router.get('/:id', uno);
 router.post('/', agregar);
-router.delete('/:id', seguridad(),eliminar);
+router.put('/:id', actualizar);
+router.delete('/:id', eliminar);
 
 async function todos(
     req: Request,
     res: Response,
     next: NextFunction
 ): Promise<void> {
+
     try {
+
         const items = await controlador.todos();
 
         respuesta.success(req, res, items, 200);
 
     } catch (error) {
+
         next(error);
+
     }
+
 }
 
 async function uno(
@@ -31,7 +36,9 @@ async function uno(
     res: Response,
     next: NextFunction
 ): Promise<void> {
+
     try {
+
         const id = Number(req.params.id);
 
         const item = await controlador.uno(id);
@@ -39,8 +46,11 @@ async function uno(
         respuesta.success(req, res, item, 200);
 
     } catch (error) {
+
         next(error);
+
     }
+
 }
 
 async function agregar(
@@ -48,7 +58,9 @@ async function agregar(
     res: Response,
     next: NextFunction
 ): Promise<void> {
+
     try {
+
         const body = req.body;
 
         await controlador.agregar(body);
@@ -61,8 +73,43 @@ async function agregar(
         );
 
     } catch (error) {
+
         next(error);
+
     }
+
+}
+
+async function actualizar(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        const body = req.body;
+
+        await controlador.actualizar(
+            id,
+            body
+        );
+
+        respuesta.success(
+            req,
+            res,
+            'Item actualizado satisfactoriamente',
+            200
+        );
+
+    } catch (error) {
+
+        next(error);
+
+    }
+
 }
 
 async function eliminar(
@@ -70,10 +117,13 @@ async function eliminar(
     res: Response,
     next: NextFunction
 ): Promise<void> {
+
     try {
+
         const id = Number(req.params.id);
 
         await controlador.eliminar(id);
+
         respuesta.success(
             req,
             res,
@@ -82,8 +132,11 @@ async function eliminar(
         );
 
     } catch (error) {
+
         next(error);
+
     }
+
 }
 
 export default router;

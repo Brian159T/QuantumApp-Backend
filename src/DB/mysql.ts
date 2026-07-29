@@ -97,6 +97,33 @@ function agregar(tabla: string, data: Data): Promise<any> {
     });
 }
 
+function actualizar(
+    tabla: string,
+    campoId: string,
+    id: number,
+    data: Data
+): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+        conexion.query(
+            'UPDATE ?? SET ? WHERE ?? = ?',
+            [tabla, data, campoId, id],
+            (err: MysqlError | null, result: any) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+
+            }
+        );
+
+    });
+
+}
+
 function eliminar(
     tabla: string,
     campoId: string,
@@ -145,6 +172,7 @@ export default {
     todos,
     uno,
     agregar,
+    actualizar,
     eliminar,
     query
 };
