@@ -2,58 +2,88 @@ import dbMysql from '../../DB/mysql';
 import bcrypt from 'bcrypt';
 import auth from '../../auth';
 
-const TABLA = 'auth';
+interface UsuarioLogin {
 
-interface Auth {
-    id: number;
-    usuario?: string;
-    password?: string;
+    correo: string;
+
+    contrasena: string;
+
 }
 
 export default function (dbInyectada?: any) {
 
     const db = dbInyectada || dbMysql;
 
-    async function agregar(body: Auth): Promise<any> {
-
-        const authData: Auth = {
-            id: body.id,
-        };
-
-        if (body.usuario) {
-            authData.usuario = body.usuario;
-        }
-
-        if (body.password) {
-            authData.password = await bcrypt.hash(body.password, 5);
-        }
-
-        return db.agregar(TABLA, authData);
-    }
-
     async function login(
-        usuario: string,
-        password: string
+        correo: string,
+        contrasena: string
     ): Promise<any> {
 
-        const data = await db.query(TABLA, {
-            usuario,
-        });
+        const sql = `
+            SELECT
+                u.id_usuario,
+                u.nombre_usuario,
+                u.correo,
+                u.contrasena,
+                r.id_rol,
+                r.Nombre AS rol
+            FROM Usuarios u
+            INNER JOIN Roles r
+                ON u.id_rol = r.id_rol
+            WHERE u.correo = ?
+        `;
 
-        const resultado = await bcrypt.compare(
-            password,
-            data.password
-        );
+        const resultado = await db.ejecutar(sql, [correo]);
 
-        if (resultado) {
-            return auth.asignarToken({ ...data });
+        if (resultado.length === 0) {
+            throw new Error('Correo o contraseña incorrectos');
         }
 
-        throw new Error('Información inválida');
+        const usuario = resultado[0];
+
+        const coincide = await bcrypt.compare(
+            contrasena,
+            usuario.contrasena
+        );
+
+        if (!coincide) {
+            throw new Error('Correo o contraseña incorrectos');
+        }
+
+        const token = auth.asignarToken({
+            id_usuario: usuario.id_usuario,
+            nombre_usuario: usuario.nombre_usuario,
+            correo: usuario.correo,
+            id_rol: usuario.id_rol,
+            rol: usuario.rol
+        });
+
+        return {
+
+            token,
+
+            usuario: {
+
+                id_usuario: usuario.id_usuario,
+
+                nombre_usuario: usuario.nombre_usuario,
+
+                correo: usuario.correo,
+
+                id_rol: usuario.id_rol,
+
+                rol: usuario.rol
+
+            }
+
+        };
+
     }
 
     return {
-        agregar,
-        login,
+
+        login
+
     };
+
 }

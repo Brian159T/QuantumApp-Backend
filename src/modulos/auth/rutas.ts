@@ -11,17 +11,35 @@ async function login(
     res: Response,
     next: NextFunction
 ): Promise<void> {
+
     try {
 
-        const { usuario, password } = req.body;
+        const {
 
-        const data = await controlador.login(usuario, password);
+            correo,
 
-        respuesta.success(req, res, data, 200);
+            contrasena
+
+        } = req.body;
+
+        const data = await controlador.login(
+            correo,
+            contrasena
+        );
+
+        respuesta.success(
+            req,
+            res,
+            data,
+            200
+        );
 
     } catch (error) {
+
         next(error);
+
     }
+
 }
 
 export default router;

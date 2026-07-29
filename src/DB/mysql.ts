@@ -168,11 +168,35 @@ function query(tabla: string, consulta: Data): Promise<any> {
 
     });
 }
+function ejecutar(
+    sql: string,
+    valores: any[] = []
+): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+        conexion.query(
+            sql,
+            valores,
+            (err: MysqlError | null, result: any) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+
+            }
+        );
+
+    });
+
+}
 export default {
     todos,
     uno,
     agregar,
-    actualizar,
     eliminar,
-    query
+    query,
+    ejecutar
 };
