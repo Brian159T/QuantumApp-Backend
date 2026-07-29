@@ -1,14 +1,21 @@
 import dbMysql from '../../DB/mysql';
-import auth from '../auth';
+import bcrypt from 'bcrypt';
 
 const TABLA = 'Usuarios';
+const CAMPO_ID = 'id_usuario';
 
 interface Usuario {
-    id: number;
-    nombre?: string;
-    activo?: boolean;
-    usuario?: string;
-    password?: string;
+
+    id_usuario?: number;
+
+    nombre_usuario: string;
+
+    correo: string;
+
+    contrasena: string;
+
+    id_rol: number;
+
 }
 
 export default function (dbInyectada?: any) {
@@ -16,52 +23,67 @@ export default function (dbInyectada?: any) {
     const db = dbInyectada || dbMysql;
 
     function todos() {
+
         return db.todos(TABLA);
+
     }
 
     function uno(id: number) {
-        return db.uno(TABLA, id);
+
+        return db.uno(
+            TABLA,
+            CAMPO_ID,
+            id
+        );
+
     }
 
-    function eliminar(body: { id: number }) {
-        return db.eliminar(TABLA, body);
+    function eliminar(id: number) {
+
+        return db.eliminar(
+            TABLA,
+            CAMPO_ID,
+            id
+        );
+
     }
 
     async function agregar(body: Usuario) {
 
         const usuario = {
-            id: body.id,
-            nombre: body.nombre,
-            activo: body.activo,
+
+            id_usuario: body.id_usuario,
+
+            nombre_usuario: body.nombre_usuario,
+
+            correo: body.correo,
+
+            contrasena: await bcrypt.hash(
+                body.contrasena,
+                5
+            ),
+
+            id_rol: body.id_rol,
+
         };
 
-        const respuesta = await db.agregar(TABLA, usuario);
+        return db.agregar(
+            TABLA,
+            usuario
+        );
 
-        let insertId: number;
-
-        if (body.id === 0) {
-            insertId = respuesta.insertId;
-        } else {
-            insertId = body.id;
-        }
-
-        let respuesta2: any = null;
-
-        if (body.usuario || body.password) {
-            respuesta2 = await auth.agregar({
-                id: insertId,
-                usuario: body.usuario,
-                password: body.password,
-            });
-        }
-
-        return respuesta2;
     }
 
     return {
+
         todos,
+
         uno,
+
         eliminar,
+
         agregar,
+
     };
+
 }

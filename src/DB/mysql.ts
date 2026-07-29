@@ -55,20 +55,30 @@ function todos(tabla: string): Promise<any> {
     });
 }
 
-function uno(tabla: string, id: number): Promise<any> {
+function uno(
+    tabla: string,
+    campoId: string,
+    id: number
+): Promise<any> {
+
     return new Promise((resolve, reject) => {
+
         conexion.query(
-            'SELECT * FROM ?? WHERE id = ?',
-            [tabla, id],
+            'SELECT * FROM ?? WHERE ?? = ?',
+            [tabla, campoId, id],
             (err: MysqlError | null, result: any[]) => {
+
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(result);
+                    resolve(result[0]);
                 }
+
             }
         );
+
     });
+
 }
 
 function agregar(tabla: string, data: Data): Promise<any> {
@@ -87,20 +97,30 @@ function agregar(tabla: string, data: Data): Promise<any> {
     });
 }
 
-function eliminar(tabla: string, data: Data): Promise<any> {
+function eliminar(
+    tabla: string,
+    campoId: string,
+    id: number
+): Promise<any> {
+
     return new Promise((resolve, reject) => {
+
         conexion.query(
-            'DELETE FROM ?? WHERE id = ?',
-            [tabla, data.id],
+            'DELETE FROM ?? WHERE ?? = ?',
+            [tabla, campoId, id],
             (err: MysqlError | null, result: any) => {
+
                 if (err) {
                     reject(err);
                 } else {
                     resolve(result);
                 }
+
             }
         );
+
     });
+
 }
 function query(tabla: string, consulta: Data): Promise<any> {
     return new Promise((resolve, reject) => {

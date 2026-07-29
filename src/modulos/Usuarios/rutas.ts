@@ -8,7 +8,7 @@ const router = Router();
 
 router.get('/', todos);
 router.get('/:id', uno);
-router.post('/',seguridad(), agregar);
+router.post('/', agregar);
 router.delete('/:id', seguridad(),eliminar);
 
 async function todos(
@@ -73,10 +73,7 @@ async function eliminar(
     try {
         const id = Number(req.params.id);
 
-        await controlador.eliminar({
-            id
-        });
-
+        await controlador.eliminar(id);
         respuesta.success(
             req,
             res,
