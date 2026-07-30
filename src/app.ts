@@ -7,6 +7,9 @@ import usuarios from './modulos/Usuarios/rutas';
 import auth from './modulos/auth/rutas';
 
 import error from './red/errors';
+import vehiculos from './modulos/Vehiculos/rutas';
+import serviciosTecnicos from './modulos/Servicios_Tecnicos/rutas';
+import estacionesCarga from './modulos/Estaciones_Carga/rutas';
 
 const app = express();
 
@@ -22,7 +25,9 @@ app.set('port', config.app.port);
 app.use('/api/clientes', clientes);
 app.use('/api/usuarios', usuarios);
 app.use('/api/auth', auth);
-
+app.use('/api/vehiculos', vehiculos);
+app.use('/api/servicios-tecnicos', serviciosTecnicos);
+app.use('/api/estaciones-carga', estacionesCarga);
 // Manejo de errores
 app.use(error);
 

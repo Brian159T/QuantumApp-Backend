@@ -196,6 +196,7 @@ export default {
     todos,
     uno,
     agregar,
+    actualizar,
     eliminar,
     query,
     ejecutar
